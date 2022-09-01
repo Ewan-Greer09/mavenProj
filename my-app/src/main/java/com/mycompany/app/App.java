@@ -53,6 +53,12 @@ public class App {
         Scanner input = new Scanner(System.in);
         String word = input.next();
 
+        // check if word is valid using validateWord method loop if not
+        while (validateInput(word) == false) {
+            System.out.println("Invalid word, please try again");
+            word = input.next();
+        }
+
         // create the request object and send it to the api server
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(URL + word))
@@ -122,6 +128,28 @@ public class App {
 
         }
 
+    }
+
+    public static boolean validateInput(String word) {
+
+        while (!word.matches("[a-zA-Z]+")) {
+            System.out.println("Please enter a valid word");
+            return false;
+        }
+        // if word contains special characters or a space loop back and ask for a string
+        while (word.contains(" ") || word.contains("!") || word.contains("@") || word.contains("#")
+                || word.contains("$")
+                || word.contains("%") || word.contains("^") || word.contains("&") || word.contains("*")
+                || word.contains("(") || word.contains(")") || word.contains("-") || word.contains("_")
+                || word.contains("+") || word.contains("=") || word.contains("[") || word.contains("]")
+                || word.contains("{") || word.contains("}") || word.contains("|") || word.contains("\\")
+                || word.contains(";") || word.contains(":") || word.contains("'") || word.contains("\"")
+                || word.contains("<") || word.contains(",") || word.contains(">") || word.contains(".")
+                || word.contains("?") || word.contains("/") || word.contains("`") || word.contains("~")) {
+            System.out.println("Please enter a valid word");
+            return false;
+        }
+        return true;
     }
 
 }
