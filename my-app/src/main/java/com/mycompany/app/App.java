@@ -62,40 +62,41 @@ public class App {
                 .build();
 
         HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-        
+
         // print the response
         System.out.println(request);
-        
-        
+
         switch (choice) {
             // find a definition
             case 1:
                 System.out.println("Find a definition");
 
-                    //take the body and convert it to a json object skipping the first character
+                // take the body and convert it to a json object skipping the first character
 
-                    String jsonString = response.body().substring(1);
+                String jsonString = response.body().substring(1);
 
-                    JSONObject body = new JSONObject(jsonString);
+                JSONObject body = new JSONObject(jsonString);
 
-                    JSONArray definition = body.getJSONArray("meanings");
+                JSONArray definition = body.getJSONArray("meanings");
 
-                    // LOOP AND PRINT ALL DEFINITIONS 
-                    for (int i = 0; i < definition.length(); i++) {
-                        JSONObject def = definition.getJSONObject(i);
-                        JSONArray defArray = def.getJSONArray("definitions");
-                        for (int j = 0; j < defArray.length(); j++) {
-                            JSONObject defObj = defArray.getJSONObject(j);
+                // if a definition does not contain an example do not print it otherwise print
+                for (int i = 0; i < definition.length(); i++) {
+                    JSONObject def = definition.getJSONObject(i);
+                    JSONArray defArray = def.getJSONArray("definitions");
+                    for (int j = 0; j < defArray.length(); j++) {
+                        JSONObject defObj = defArray.getJSONObject(j);
+                        if (defObj.has("example")) {
+                            System.out.println(defObj.getString("definition"));
+                            System.out.println(defObj.get("example"));
+                            System.out.println();
+                        } else {
                             System.out.println(defObj.getString("definition"));
                             System.out.println();
                         }
                     }
+                }
 
-                    // System.out.println(definition);
-                    
-
-                    
-                
+                // System.out.println(definition);
 
                 break;
             // find a synonym
