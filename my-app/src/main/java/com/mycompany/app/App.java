@@ -87,6 +87,7 @@ public class App {
                         for (int j = 0; j < defArray.length(); j++) {
                             JSONObject defObj = defArray.getJSONObject(j);
                             System.out.println(defObj.getString("definition"));
+                            System.out.println();
                         }
                     }
 
