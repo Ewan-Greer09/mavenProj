@@ -58,7 +58,7 @@ public class App {
         // check if word is valid using validateWord method loop if not
         while (validateInput(word) == false) {
             System.out.println("Invalid word, please try again");
-            word = input.next();
+            word = input.nextLine();
         }
 
         // create the request object and send it to the api server
@@ -70,6 +70,12 @@ public class App {
                 .build();
 
         HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+
+        //if response is not 200, print error message
+        if (response.statusCode() != 200) {
+            System.out.println("Error: " + response.statusCode() + " Word does not exist");
+            return;
+        }
 
         // print the response
         System.out.println(request);
@@ -83,6 +89,9 @@ public class App {
 
                 String jsonString = response.body().substring(1);
 
+
+
+
                 JSONObject body = new JSONObject(jsonString);
 
                 JSONArray definition = body.getJSONArray("meanings");
@@ -91,6 +100,7 @@ public class App {
                 for (int i = 0; i < definition.length(); i++) {
                     JSONObject def = definition.getJSONObject(i);
                     JSONArray defArray = def.getJSONArray("definitions");
+                    
                     for (int j = 0; j < defArray.length(); j++) {
                         JSONObject defObj = defArray.getJSONObject(j);
                         if (defObj.has("example")) {
