@@ -9,6 +9,8 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
 import java.util.Scanner;
 
+import javax.swing.WindowConstants;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -53,6 +55,12 @@ public class App {
         Scanner input = new Scanner(System.in);
         String word = input.next();
 
+        // check if word is valid using validateWord method loop if not
+        while (validateInput(word) == false) {
+            System.out.println("Invalid word, please try again");
+            word = input.next();
+        }
+
         // create the request object and send it to the api server
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(URL + word))
@@ -86,9 +94,14 @@ public class App {
                     for (int j = 0; j < defArray.length(); j++) {
                         JSONObject defObj = defArray.getJSONObject(j);
                         if (defObj.has("example")) {
+                            System.out.println("Definition: " + (j + 1));
+
                             System.out.println(defObj.getString("definition"));
+                            System.out.println();
+                            System.out.print("Example: ");
                             System.out.println(defObj.get("example"));
                             System.out.println();
+                            System.out.println("------------------------------------------");
                         } else {
                             System.out.println(defObj.getString("definition"));
                             System.out.println();
@@ -101,17 +114,46 @@ public class App {
                 break;
             // find a synonym
             case 2:
+
+                //same as case 1 but for synonyms
                 System.out.println("Find a synonym");
-                String body1 = response.body().substring(1);
-                JSONObject jsonOBJ = new JSONObject(body1);
-                JSONArray jsArray = jsonOBJ.getJSONArray("meanings");
-                JSONObject jsObj = jsArray.getJSONObject(0);
-                JSONArray synArray = jsObj.getJSONArray("definitions");
-                JSONObject synObj = synArray.getJSONObject(0);
-                JSONArray synArray2 = synObj.getJSONArray("synonyms");
-                for (int i = 0; i < synArray2.length(); i++) {
-                    System.out.println(synArray2.get(i));
+                //TODO: remove duplicated code
+                String jsonString2 = response.body().substring(1);
+
+                JSONObject body2 = new JSONObject(jsonString2);
+
+                JSONArray definition2 = body2.getJSONArray("meanings");
+
+                for (int i = 0; i < definition2.length(); i++) {
+                    JSONObject def = definition2.getJSONObject(i);
+                    JSONArray defArray = def.getJSONArray("definitions");
+                    for (int j = 0; j < defArray.length(); j++) {
+                        JSONObject defObj = defArray.getJSONObject(j);
+                        if (defObj.has("synonyms")) {
+                            System.out.println("Synonym: " + (j + 1));
+
+                            System.out.println(defObj.get("synonyms"));
+                            System.out.println();
+                            System.out.println("------------------------------------------");
+                        } else {
+                            System.out.println("No synonyms found");
+                            System.out.println();
+                        }
+                    }
                 }
+
+
+                // System.out.println("Find a synonym");
+                // String body1 = response.body().substring(1);
+                // JSONObject jsonOBJ = new JSONObject(body1);
+                // JSONArray jsArray = jsonOBJ.getJSONArray("meanings");
+                // JSONObject jsObj = jsArray.getJSONObject(0);
+                // JSONArray synArray = jsObj.getJSONArray("definitions");
+                // JSONObject synObj = synArray.getJSONObject(0);
+                // JSONArray synArray2 = synObj.getJSONArray("synonyms");
+                // for (int i = 0; i < synArray2.length(); i++) {
+                //     System.out.println(synArray2.get(i));
+                // }
                 break;
             case 3:
                 System.out.println("Find an antonym");
@@ -122,6 +164,28 @@ public class App {
 
         }
 
+    }
+
+    public static boolean validateInput(String word) {
+
+        while (!word.matches("[a-zA-Z]+")) {
+            System.out.println("Please enter a valid word");
+            return false;
+        }
+        // if word contains special characters or a space loop back and ask for a string
+        while (word.contains(" ") || word.contains("!") || word.contains("@") || word.contains("#")
+                || word.contains("$")
+                || word.contains("%") || word.contains("^") || word.contains("&") || word.contains("*")
+                || word.contains("(") || word.contains(")") || word.contains("-") || word.contains("_")
+                || word.contains("+") || word.contains("=") || word.contains("[") || word.contains("]")
+                || word.contains("{") || word.contains("}") || word.contains("|") || word.contains("\\")
+                || word.contains(";") || word.contains(":") || word.contains("'") || word.contains("\"")
+                || word.contains("<") || word.contains(",") || word.contains(">") || word.contains(".")
+                || word.contains("?") || word.contains("/") || word.contains("`") || word.contains("~")) {
+            System.out.println("Please enter a valid word");
+            return false;
+        }
+        return true;
     }
 
 }
