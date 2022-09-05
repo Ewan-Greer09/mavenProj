@@ -90,9 +90,12 @@ public class App {
             return;
         }
 
-        // print the response
-        System.out.println(request);
+        // print the request
+        // System.out.println(request);
 
+        //print the response
+        //System.out.println(response.body());
+        
         String jsonString = response.body().substring(1);
 
         JSONObject body = new JSONObject(jsonString);
@@ -103,7 +106,7 @@ public class App {
             // find a definition
             case 1:
                 System.out.println("Find a definition");
-
+            System.out.println("\n" + "------------------------------------------");
                 // if a definition does not contain an example do not print it otherwise print
                 for (int i = 0; i < definition.length(); i++) {
                     JSONObject def = definition.getJSONObject(i);
