@@ -23,13 +23,13 @@ public class App {
     public static void main(String[] args) throws IOException, InterruptedException {
 
         while (true) {
-            Menu m = new Menu();
+            Menu main_Menu = new Menu();
             Scanner input = new Scanner(System.in);
 
             System.out.println("Welcome to the Dictionary");
             System.out.println("Plase select an option");
             // call menu
-            m.display();
+            main_Menu.display();
             int in = 0;
 
             // try catch input mismatch
@@ -173,19 +173,7 @@ public class App {
             System.out.println("Please enter a valid word");
             return false;
         }
-        // if word contains special characters or a space loop back and ask for a string
-        while (word.contains(" ") || word.contains("!") || word.contains("@") || word.contains("#")
-                || word.contains("$")
-                || word.contains("%") || word.contains("^") || word.contains("&") || word.contains("*")
-                || word.contains("(") || word.contains(")") || word.contains("-") || word.contains("_")
-                || word.contains("+") || word.contains("=") || word.contains("[") || word.contains("]")
-                || word.contains("{") || word.contains("}") || word.contains("|") || word.contains("\\")
-                || word.contains(";") || word.contains(":") || word.contains("'") || word.contains("\"")
-                || word.contains("<") || word.contains(",") || word.contains(">") || word.contains(".")
-                || word.contains("?") || word.contains("/") || word.contains("`") || word.contains("~")) {
-            System.out.println("Please enter a valid word");
-            return false;
-        }
+        
         return true;
     }
 
