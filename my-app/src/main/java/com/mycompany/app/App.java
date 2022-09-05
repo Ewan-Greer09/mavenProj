@@ -7,9 +7,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
+import java.util.InputMismatchException;
 import java.util.Scanner;
-
-import javax.swing.WindowConstants;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,8 +30,20 @@ public class App {
             System.out.println("Plase select an option");
             // call menu
             m.display();
+            int in = 0;
 
-            int in = input.nextInt();
+            // try catch input mismatch
+            try {
+                in = input.nextInt();
+            } catch (InputMismatchException ioeException) {
+                System.out.println("Please enter a valid option");
+                System.out.println("Error: " + ioeException);
+                continue;
+            }
+            if (in > 4 || in < 1) {
+                System.out.println("Please enter a valid option");
+                continue;
+            }
 
             if (in == 4) {
                 System.exit(0);
@@ -46,6 +57,8 @@ public class App {
 
     // process user choice
     public static void processChoice(int choice) throws IOException, InterruptedException {
+
+        System.out.println(choice);
 
         // create the http client
         HttpClient client = HttpClient.newBuilder().build();
@@ -71,7 +84,7 @@ public class App {
 
         HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
 
-        //if response is not 200, print error message
+        // if response is not 200, print error message
         if (response.statusCode() != 200) {
             System.out.println("Error: " + response.statusCode() + " Word does not exist");
             return;
@@ -80,27 +93,22 @@ public class App {
         // print the response
         System.out.println(request);
 
+        String jsonString = response.body().substring(1);
+
+        JSONObject body = new JSONObject(jsonString);
+
+        JSONArray definition = body.getJSONArray("meanings");
+
         switch (choice) {
             // find a definition
             case 1:
                 System.out.println("Find a definition");
 
-                // take the body and convert it to a json object skipping the first character
-
-                String jsonString = response.body().substring(1);
-
-
-
-
-                JSONObject body = new JSONObject(jsonString);
-
-                JSONArray definition = body.getJSONArray("meanings");
-
                 // if a definition does not contain an example do not print it otherwise print
                 for (int i = 0; i < definition.length(); i++) {
                     JSONObject def = definition.getJSONObject(i);
                     JSONArray defArray = def.getJSONArray("definitions");
-                    
+
                     for (int j = 0; j < defArray.length(); j++) {
                         JSONObject defObj = defArray.getJSONObject(j);
                         if (defObj.has("example")) {
@@ -119,51 +127,34 @@ public class App {
                     }
                 }
 
-                // System.out.println(definition);
-
                 break;
             // find a synonym
             case 2:
 
-                //same as case 1 but for synonyms
+                // same as case 1 but for synonyms
                 System.out.println("Find a synonym");
-                //TODO: remove duplicated code
-                String jsonString2 = response.body().substring(1);
 
-                JSONObject body2 = new JSONObject(jsonString2);
-
-                JSONArray definition2 = body2.getJSONArray("meanings");
-
-                for (int i = 0; i < definition2.length(); i++) {
-                    JSONObject def = definition2.getJSONObject(i);
+                for (int i = 0; i < definition.length(); i++) {
+                    JSONObject def = definition.getJSONObject(i);
                     JSONArray defArray = def.getJSONArray("definitions");
                     for (int j = 0; j < defArray.length(); j++) {
                         JSONObject defObj = defArray.getJSONObject(j);
                         if (defObj.has("synonyms")) {
-                            System.out.println("Synonym: " + (j + 1));
+                            // if synonyms is empty print no synonyms
 
-                            System.out.println(defObj.get("synonyms"));
-                            System.out.println();
-                            System.out.println("------------------------------------------");
-                        } else {
-                            System.out.println("No synonyms found");
-                            System.out.println();
+                            if (defObj.getJSONArray("synonyms").length() != 0) {
+                                System.out.println("Synonyms: ");
+                                for (int k = 0; k < defObj.getJSONArray("synonyms").length(); k++) {
+                                    System.out.println(defObj.getJSONArray("synonyms").get(k));
+                                }
+                                break;
+                            } else {
+                                System.out.println("No synonyms found");
+                                break;
+                            }
                         }
                     }
                 }
-
-
-                // System.out.println("Find a synonym");
-                // String body1 = response.body().substring(1);
-                // JSONObject jsonOBJ = new JSONObject(body1);
-                // JSONArray jsArray = jsonOBJ.getJSONArray("meanings");
-                // JSONObject jsObj = jsArray.getJSONObject(0);
-                // JSONArray synArray = jsObj.getJSONArray("definitions");
-                // JSONObject synObj = synArray.getJSONObject(0);
-                // JSONArray synArray2 = synObj.getJSONArray("synonyms");
-                // for (int i = 0; i < synArray2.length(); i++) {
-                //     System.out.println(synArray2.get(i));
-                // }
                 break;
             case 3:
                 System.out.println("Find an antonym");
