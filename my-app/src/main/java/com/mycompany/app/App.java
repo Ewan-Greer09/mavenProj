@@ -10,6 +10,8 @@ import java.time.Duration;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+import javax.swing.WindowConstants;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -158,6 +160,19 @@ public class App {
                         }
                     }
                 }
+
+
+                // System.out.println("Find a synonym");
+                // String body1 = response.body().substring(1);
+                // JSONObject jsonOBJ = new JSONObject(body1);
+                // JSONArray jsArray = jsonOBJ.getJSONArray("meanings");
+                // JSONObject jsObj = jsArray.getJSONObject(0);
+                // JSONArray synArray = jsObj.getJSONArray("definitions");
+                // JSONObject synObj = synArray.getJSONObject(0);
+                // JSONArray synArray2 = synObj.getJSONArray("synonyms");
+                // for (int i = 0; i < synArray2.length(); i++) {
+                //     System.out.println(synArray2.get(i));
+                // }
                 break;
             case 3:
                 System.out.println("Find an antonym");
