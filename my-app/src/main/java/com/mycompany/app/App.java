@@ -7,6 +7,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import javax.swing.WindowConstants;
@@ -24,15 +25,27 @@ public class App {
     public static void main(String[] args) throws IOException, InterruptedException {
 
         while (true) {
-            Menu m = new Menu();
+            Menu main_Menu = new Menu();
             Scanner input = new Scanner(System.in);
 
             System.out.println("Welcome to the Dictionary");
             System.out.println("Plase select an option");
             // call menu
-            m.display();
+            main_Menu.display();
+            int in = 0;
 
-            int in = input.nextInt();
+            // try catch input mismatch
+            try {
+                in = input.nextInt();
+            } catch (InputMismatchException ioeException) {
+                System.out.println("Please enter a valid option");
+                System.out.println("Error: " + ioeException);
+                continue;
+            }
+            if (in > 4 || in < 1) {
+                System.out.println("Please enter a valid option");
+                continue;
+            }
 
             if (in == 4) {
                 System.exit(0);
@@ -47,6 +60,8 @@ public class App {
     // process user choice
     public static void processChoice(int choice) throws IOException, InterruptedException {
 
+        System.out.println(choice);
+
         // create the http client
         HttpClient client = HttpClient.newBuilder().build();
 
@@ -58,7 +73,7 @@ public class App {
         // check if word is valid using validateWord method loop if not
         while (validateInput(word) == false) {
             System.out.println("Invalid word, please try again");
-            word = input.next();
+            word = input.nextLine();
         }
 
         // create the request object and send it to the api server
@@ -71,26 +86,34 @@ public class App {
 
         HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
 
-        // print the response
-        System.out.println(request);
+        // if response is not 200, print error message
+        if (response.statusCode() != 200) {
+            System.out.println("Error: " + response.statusCode() + " Word does not exist");
+            return;
+        }
+
+        // print the request
+        // System.out.println(request);
+
+        //print the response
+        //System.out.println(response.body());
+        
+        String jsonString = response.body().substring(1);
+
+        JSONObject body = new JSONObject(jsonString);
+
+        JSONArray definition = body.getJSONArray("meanings");
 
         switch (choice) {
             // find a definition
             case 1:
                 System.out.println("Find a definition");
-
-                // take the body and convert it to a json object skipping the first character
-
-                String jsonString = response.body().substring(1);
-
-                JSONObject body = new JSONObject(jsonString);
-
-                JSONArray definition = body.getJSONArray("meanings");
-
+            System.out.println("\n" + "------------------------------------------");
                 // if a definition does not contain an example do not print it otherwise print
                 for (int i = 0; i < definition.length(); i++) {
                     JSONObject def = definition.getJSONObject(i);
                     JSONArray defArray = def.getJSONArray("definitions");
+
                     for (int j = 0; j < defArray.length(); j++) {
                         JSONObject defObj = defArray.getJSONObject(j);
                         if (defObj.has("example")) {
@@ -109,35 +132,31 @@ public class App {
                     }
                 }
 
-                // System.out.println(definition);
-
                 break;
             // find a synonym
             case 2:
 
-                //same as case 1 but for synonyms
+                // same as case 1 but for synonyms
                 System.out.println("Find a synonym");
-                //TODO: remove duplicated code
-                String jsonString2 = response.body().substring(1);
 
-                JSONObject body2 = new JSONObject(jsonString2);
-
-                JSONArray definition2 = body2.getJSONArray("meanings");
-
-                for (int i = 0; i < definition2.length(); i++) {
-                    JSONObject def = definition2.getJSONObject(i);
+                for (int i = 0; i < definition.length(); i++) {
+                    JSONObject def = definition.getJSONObject(i);
                     JSONArray defArray = def.getJSONArray("definitions");
                     for (int j = 0; j < defArray.length(); j++) {
                         JSONObject defObj = defArray.getJSONObject(j);
                         if (defObj.has("synonyms")) {
-                            System.out.println("Synonym: " + (j + 1));
+                            // if synonyms is empty print no synonyms
 
-                            System.out.println(defObj.get("synonyms"));
-                            System.out.println();
-                            System.out.println("------------------------------------------");
-                        } else {
-                            System.out.println("No synonyms found");
-                            System.out.println();
+                            if (defObj.getJSONArray("synonyms").length() != 0) {
+                                System.out.println("Synonyms: ");
+                                for (int k = 0; k < defObj.getJSONArray("synonyms").length(); k++) {
+                                    System.out.println(defObj.getJSONArray("synonyms").get(k));
+                                }
+                                break;
+                            } else {
+                                System.out.println("No synonyms found");
+                                break;
+                            }
                         }
                     }
                 }
@@ -172,19 +191,7 @@ public class App {
             System.out.println("Please enter a valid word");
             return false;
         }
-        // if word contains special characters or a space loop back and ask for a string
-        while (word.contains(" ") || word.contains("!") || word.contains("@") || word.contains("#")
-                || word.contains("$")
-                || word.contains("%") || word.contains("^") || word.contains("&") || word.contains("*")
-                || word.contains("(") || word.contains(")") || word.contains("-") || word.contains("_")
-                || word.contains("+") || word.contains("=") || word.contains("[") || word.contains("]")
-                || word.contains("{") || word.contains("}") || word.contains("|") || word.contains("\\")
-                || word.contains(";") || word.contains(":") || word.contains("'") || word.contains("\"")
-                || word.contains("<") || word.contains(",") || word.contains(">") || word.contains(".")
-                || word.contains("?") || word.contains("/") || word.contains("`") || word.contains("~")) {
-            System.out.println("Please enter a valid word");
-            return false;
-        }
+        
         return true;
     }
 

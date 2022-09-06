@@ -1,6 +1,9 @@
 package com.mycompany.app;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+
+
+import java.io.IOException;
 
 import org.junit.Test;
 
@@ -9,12 +12,23 @@ import org.junit.Test;
  */
 public class AppTest 
 {
-    /**
-     * Rigorous Test :-)
-     */
+
+    private static App myApp = new App();
+
+    // test for valid word
     @Test
-    public void shouldAnswerWithTrue()
-    {
-        assertTrue( true );
+    public void testValidWord() throws IOException, InterruptedException {
+        String word = "hello";
+        boolean result = App.validateInput(word);
+        assertTrue(result);
     }
+
+    @Test
+    public void testInValidWord() throws IOException, InterruptedException {
+        String word = "<>>";
+        boolean result = App.validateInput(word);
+        assertFalse(result);
+    }
+    
+
 }
